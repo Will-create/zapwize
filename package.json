@@ -1,0 +1,25 @@
+{
+  "name": "zapwize",
+  "version": "1.0.0",
+  "description": "A simple NPM SDK to send WhatsApp messages, media, and remote commands via Zapwize API",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "whatsapp",
+    "api",
+    "sdk",
+    "zapwize",
+    "messaging"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
