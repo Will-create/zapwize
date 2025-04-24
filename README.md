@@ -114,5 +114,5 @@ MIT
 ## Support
 
 - Documentation: [https://zapwize.com/docs](https://zapwize.com/docs)
-- Issues: [GitHub Issues](https://github.com/zapwize/zapwize/issues)
+- Issues: [GitHub Issues](https://github.com/will-create/zapwize/issues)
 ```

@@ -1,6 +1,6 @@
 {
   "name": "zapwize",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple NPM SDK to send WhatsApp messages, media, and remote commands via Zapwize API",
   "main": "src/index.js",
   "scripts": {
