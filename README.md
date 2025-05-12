@@ -1,6 +1,6 @@
 # Zapwize
 
-A lightweight Node.js SDK for sending WhatsApp messages, media, and remote commands via Zapwize API. Now with WebSocket support for real-time messaging.
+A lightweight Node.js SDK for sending WhatsApp messages, media, and receiving real-time updates via WebSocket connection.
 
 [![NPM Version](https://img.shields.io/npm/v/zapwize.svg)](https://www.npmjs.com/package/zapwize)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,10 +9,10 @@ A lightweight Node.js SDK for sending WhatsApp messages, media, and remote comma
 
 - Send messages to any WhatsApp number
 - Send media (images, videos, documents)
-- Control WhatsApp sessions via RPC
-- Simple API key authentication
 - Real-time message reception via WebSocket
 - Event-based architecture for handling messages and connection states
+- Automatic reconnection handling
+- Simple API key authentication
 
 ## Installation
 
@@ -26,20 +26,49 @@ npm install zapwize
 const Zapwize = require('zapwize');
 const zap = new Zapwize({ apiKey: 'your_api_key_here' });
 
-// Send a text message
-await zap.sendMessage('22600000000', 'Hello from Zapwize!');
-
-// Send an image with caption
-await zap.sendMedia('22600000000', {
-  url: 'https://example.com/image.jpg',
-  caption: 'Check this out!'
+// Listen for connection ready event
+zap.on('ready', (data) => {
+  console.log('Connected to Zapwize!', data);
+  
+  // Send a text message
+  zap.sendMessage('22600000000', 'Hello from Zapwize!');
 });
 
-// Check WhatsApp connection state
-const state = await zap.rpc({ topic: 'state' });
-console.log(state); // { content: 'CONNECTED' }
+// Listen for incoming messages
+zap.on('message', (message) => {
+  console.log('New message received:', message);
+  
+  // Reply to the message
+  if (message.from) {
+    const phone = message.from.number;
+    zap.sendMessage(phone, 'Thanks for your message!');
+  }
+});
+
+// Handle errors
+zap.on('error', (error) => {
+  console.error('Error:', error);
+});
 ```
 
+
+
+          
+# Getting Your API Key
+
+To use the Zapwize SDK, you'll need to obtain an API key. Here's how to get one:
+
+1. **Create an Account**: Visit [https://app.zapwize.com/](https://app.zapwize.com/) and sign up for a new account.
+
+2. **Add Your WhatsApp Number**: After logging in, you'll need to add and verify your WhatsApp number to the platform.
+
+3. **Generate API Key**: Once your number is verified, navigate to the API section in your dashboard.
+
+4. **Copy Your API Key**: Your unique API key will be displayed. Copy this key as you'll need it to initialize the Zapwize SDK.
+
+Remember to keep your API key secure and never share it publicly. Each API key is linked to your specific WhatsApp number and account.
+
+        
 ## API Reference
 
 ### Constructor
@@ -66,21 +95,39 @@ await zap.sendMedia(phone, mediaData);
 - `phone`: Recipient's phone number
 - `mediaData`: Object containing:
   - `url`: Public URL to media file **OR**
-  - `base64`: Base64-encoded media content
+  - `content`: Base64-encoded media content
   - `caption`: Optional text caption
   - `type`: Optional ('url' or 'base64')
 
-### RPC Commands
+### Event Listeners
 
 ```javascript
-await zap.rpc({ topic: command });
+// Connection established
+zap.on('ready', (data) => {
+  console.log('Connected!', data);
+});
+
+// New message received
+zap.on('message', (message) => {
+  console.log('Message:', message);
+});
+
+// Error occurred
+zap.on('error', (error) => {
+  console.error('Error:', error);
+});
+
+// Disconnected from server
+zap.on('disconnected', () => {
+  console.log('Disconnected from server');
+});
 ```
 
-Available commands:
-- `state`: Get WhatsApp connection state
-- `logout`: Log out current session
-- `ping`: Health check
-- `test`: Echo test
+### Disconnect
+
+```javascript
+zap.disconnect();
+```
 
 ## Supported Media Types
 
@@ -94,24 +141,41 @@ Available commands:
 
 ## Authentication
 
-All requests are authenticated using your API key:
+The SDK uses a two-step authentication process:
+1. Initial REST API call with your API key to obtain server information and token
+2. WebSocket connection using the obtained token
 
-```http
-Authorization: Bearer YOUR_API_KEY
+All you need to provide is your API key:
+
+```javascript
+const zap = new Zapwize({ apiKey: 'YOUR_API_KEY' });
 ```
 
-## Coming Soon
+## Connection Flow
 
-- QR Code Scan via SDK
-- Webhook registration
-- Event listeners for incoming messages
-- TypeScript support
+1. The SDK initializes with your API key
+2. Makes a REST API call to get server information and token
+3. Establishes a WebSocket connection for real-time messaging
+4. Emits 'ready' event when connection is established
+5. Automatically handles reconnection if connection is lost
+
+## Error Handling
+
+The SDK emits 'error' events with detailed information:
+
+```javascript
+zap.on('error', (error) => {
+  console.error('Error type:', error.type);
+  console.error('Error details:', error.error);
+});
+```
+
+Error types include:
+- 'initialization': Issues during initial setup
+- 'websocket': Connection problems
+- 'message_parsing': Problems parsing incoming messages
 
 ## License
 
 MIT
 
-## Support
-
-- Documentation: [https://zapwize.com/docs](https://zapwize.com/docs)
-- Issues: [GitHub Issues](https://github.com/will-create/zapwize/issues)
