@@ -1,7 +1,6 @@
-
 # Zapwize
 
-A lightweight Node.js SDK for sending WhatsApp messages, media, and remote commands via Zapwize API.
+A lightweight Node.js SDK for sending WhatsApp messages, media, and remote commands via Zapwize API. Now with WebSocket support for real-time messaging.
 
 [![NPM Version](https://img.shields.io/npm/v/zapwize.svg)](https://www.npmjs.com/package/zapwize)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -12,7 +11,8 @@ A lightweight Node.js SDK for sending WhatsApp messages, media, and remote comma
 - Send media (images, videos, documents)
 - Control WhatsApp sessions via RPC
 - Simple API key authentication
-- No phone number management needed
+- Real-time message reception via WebSocket
+- Event-based architecture for handling messages and connection states
 
 ## Installation
 
@@ -115,4 +115,3 @@ MIT
 
 - Documentation: [https://zapwize.com/docs](https://zapwize.com/docs)
 - Issues: [GitHub Issues](https://github.com/will-create/zapwize/issues)
-```
