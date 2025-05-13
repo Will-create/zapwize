@@ -1,6 +1,6 @@
 # Zapwize
 
-A lightweight Node.js SDK for sending WhatsApp messages, media, and receiving real-time updates via WebSocket connection.
+A lightweight Node.js SDK and CLI for sending WhatsApp messages, media, and managing your WhatsApp integration via Zapwize API.
 
 [![NPM Version](https://img.shields.io/npm/v/zapwize.svg)](https://www.npmjs.com/package/zapwize)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -13,14 +13,19 @@ A lightweight Node.js SDK for sending WhatsApp messages, media, and receiving re
 - Event-based architecture for handling messages and connection states
 - Automatic reconnection handling
 - Simple API key authentication
+- CLI for managing your Zapwize account and WhatsApp numbers
 
 ## Installation
 
 ```bash
+# Install as a dependency in your project
 npm install zapwize
+
+# Or install globally to use the CLI
+npm install -g zapwize
 ```
 
-## Quick Start
+## SDK Quick Start
 
 ```javascript
 const Zapwize = require('zapwize');
@@ -51,12 +56,70 @@ zap.on('error', (error) => {
 });
 ```
 
+## CLI Usage
+
+Zapwize includes a command-line interface for managing your account and WhatsApp numbers.
+
+### Utility Functions
+
+```bash
+# Check if a phone number is a valid WhatsApp number
+zapwize check-number 22600000000
+```
 
 
-          
-# Getting Your API Key
+### Authentication
 
-To use the Zapwize SDK, you'll need to obtain an API key. Here's how to get one:
+```bash
+# Log in to your Zapwize account
+zapwize login
+
+# Log out
+zapwize logout
+```
+
+### Managing WhatsApp Numbers
+
+```bash
+# List your WhatsApp numbers
+zapwize numbers
+
+# Link a new WhatsApp number by scanning QR code
+zapwize link
+```
+
+### API Keys
+
+```bash
+# Create a new API key for a WhatsApp number
+zapwize create-key 22600000000
+```
+
+### Subscription Plans
+
+```bash
+# List available subscription plans
+zapwize plans
+
+# Subscribe a WhatsApp number to a plan
+zapwize subscribe 22600000000 plan_id
+```
+
+### Account Status
+
+```bash
+# Check your account status
+zapwize status
+```
+
+
+
+
+## Getting Your API Key
+
+To use the Zapwize SDK, you'll need to obtain an API key. Here are two ways to get one:
+
+### Method 1: Using the Web Interface
 
 1. **Create an Account**: Visit [https://app.zapwize.com/](https://app.zapwize.com/) and sign up for a new account.
 
@@ -66,10 +129,44 @@ To use the Zapwize SDK, you'll need to obtain an API key. Here's how to get one:
 
 4. **Copy Your API Key**: Your unique API key will be displayed. Copy this key as you'll need it to initialize the Zapwize SDK.
 
+### Method 2: Using the Zapwize CLI
+
+If you've installed the Zapwize CLI globally, you can use it to manage your API keys:
+
+1. **Login to Your Account**:
+   ```bash
+   zapwize login
+   ```
+
+2. **Link Your WhatsApp Number** (if you haven't already):
+   ```bash
+   zapwize link
+   ```
+   This will display a QR code in your terminal that you can scan with your WhatsApp app.
+
+3. **Create an API Key**:
+   ```bash
+   zapwize create-key YOUR_PHONE_NUMBER
+   ```
+   Replace `YOUR_PHONE_NUMBER` with your actual WhatsApp number.
+
+4. **Save Your API Key**: The CLI will display your new API key. Save it securely as it will only be shown once.
+
 Remember to keep your API key secure and never share it publicly. Each API key is linked to your specific WhatsApp number and account.
 
         
-## API Reference
+## SDK API Reference
+
+### Check WhatsApp Number
+Check if a phone number is a valid WhatsApp number
+
+```javascript
+await zap.isWhatsAppNumber(phone);
+```
+
+- `phone`: Phone number to check (e.g., '22612345678')
+- Returns: `true` if the number is a valid WhatsApp number, `false` otherwise
+- Note: This function doesn't require an API key
 
 ### Constructor
 

@@ -147,6 +147,15 @@ class Zapwize extends EventEmitter {
       this.connected = false;
     }
   }
+  async isWhatsAppNumber(phone) {
+    try {
+      // This endpoint doesn't require authentication
+      const response = await axios.get(`https://api.zapwize.com/v1/iswhatsapp?phone=${encodeURIComponent(phone)}`);
+      return response.data.success && response.data.value;
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
 module.exports = Zapwize;
