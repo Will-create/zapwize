@@ -2,7 +2,7 @@
 
 const { program } = require('commander');
 const inquirer = require('inquirer');
-const open = require('open');
+const openBrowser = require('open');
 const qrcode = require('qrcode-terminal');
 const Conf = require('conf').default;
 const Zapwize = require('../src/index');
@@ -48,8 +48,13 @@ program
     const state = Math.random().toString(36).substring(2, 15);
     config.set('loginState', state);
     
-    // Open browser with login URL
-    await open(`https://app.zapwize.com/cli-auth?state=${state}`);
+    // Open browser with login URL - Fixed by using openBrowser instead of open
+    try {
+      await openBrowser(`https://app.zapwize.com/cli-auth?state=${state}`);
+    } catch (error) {
+      console.error('Failed to open browser:', error.message);
+      console.log(`Please manually open this URL in your browser: https://app.zapwize.com/cli-auth?state=${state}`);
+    }
     
     console.log('After logging in through the browser, you will be redirected back to the CLI.');
     console.log('Waiting for authentication...');
