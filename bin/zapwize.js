@@ -4,7 +4,7 @@ const { program } = require('commander');
 const inquirer = require('inquirer');
 const open = require('open');
 const qrcode = require('qrcode-terminal');
-const Conf = require('conf');
+const Conf = require('conf').default;
 const Zapwize = require('../src/index');
 
 // Configuration storage
