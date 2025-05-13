@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-
 const { program } = require('commander');
 const inquirer = require('inquirer');
-const openBrowser = require('open');
+const open = require('open');
 const qrcode = require('qrcode-terminal');
 const Conf = require('conf').default;
 const Zapwize = require('../src/index');
+const path = require('path');
+const os = require('os');
 
 // Configuration storage
 const config = new Conf({
@@ -48,12 +49,15 @@ program
     const state = Math.random().toString(36).substring(2, 15);
     config.set('loginState', state);
     
-    // Open browser with login URL - Fixed by using openBrowser instead of open
+    const authUrl = `https://app.zapwize.com/cli-auth?state=${state}`;
+    
+    // Open browser with login URL - Fixed to work cross-platform
     try {
-      await openBrowser(`https://app.zapwize.com/cli-auth?state=${state}`);
+      await open(authUrl);  // Use the open function directly
+      console.log(`Browser opened to: ${authUrl}`);
     } catch (error) {
       console.error('Failed to open browser:', error.message);
-      console.log(`Please manually open this URL in your browser: https://app.zapwize.com/cli-auth?state=${state}`);
+      console.log(`Please manually open this URL in your browser: ${authUrl}`);
     }
     
     console.log('After logging in through the browser, you will be redirected back to the CLI.');
