@@ -12,16 +12,12 @@ class Zapwize extends EventEmitter {
     
     this.apiKey = config.apiKey;
     this.baseURL = 'https://api.zapwize.com/v1';
+    
+    // Create a single, well-configured axios instance
     this.client = axios.create({
-      baseURL: this.baseURL,
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Corntent-Type': 'application/json'
-      },
       timeout: 30000
     });
 
-    this.client2 = null;
     this.socket = null;
     this.connected = false;
     this.serverInfo = null;
@@ -34,7 +30,12 @@ class Zapwize extends EventEmitter {
 
   async _initialize() {
     try {
-      const response = await this.client.get('/');
+      const response = await this.client.get(this.baseURL, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response?.data?.success) {
         this.emit('error', { type: 'initialization', error: 'Invalid API response' });
@@ -48,7 +49,6 @@ class Zapwize extends EventEmitter {
         return;
       }
 
-      this._createSecondaryClient();
       this._connectWebSocket();
       
     } catch (error) {
@@ -60,21 +60,6 @@ class Zapwize extends EventEmitter {
     return this.serverInfo?.baseurl && this.serverInfo?.url && 
            this.serverInfo?.token && this.serverInfo?.msgapi && 
            this.serverInfo?.mediaapi;
-  }
-
-  _createSecondaryClient() {
-    this.client2 = axios.create({
-      baseURL: this.serverInfo.baseurl,
-      timeout: 30000,
-      headers: {
-          'Content-Type': 'application/json',
-          'x-phone': this.serverInfo.phone.replace(':', '_'),
-          'x-token': this.serverInfo.token,
-          'x-apikey': this.apiKey,
-      },
-    });
-    this.msgUrl   = `${this.serverInfo.baseurl.replace(/\/+$/, '')}/${this.serverInfo.msgapi}`;
-    this.mediaUrl = `${this.serverInfo.baseurl.replace(/\/+$/, '')}/${this.serverInfo.mediaapi}`;
   }
   
   _connectWebSocket() {
@@ -130,7 +115,7 @@ class Zapwize extends EventEmitter {
   }
 
   _ensureConnection() {
-    if (!this.client2 || !this.connected) {
+    if (!this.serverInfo || !this.connected) {
       throw new Error('Client not initialized or disconnected');
     }
   }
@@ -151,11 +136,19 @@ class Zapwize extends EventEmitter {
     if (options.quoted) payload.quoted = options.quoted;
 
     try {
-      const response = await this.client2.post(this.msgUrl, payload);
-      console.log(`Sent message to ${phone}:`, response.data);
+      const url = `${this.serverInfo.baseurl.replace(/\/+$/, '')}/${this.serverInfo.msgapi}`;
+      const headers = {
+          'Content-Type': 'application/json',
+          'x-phone': this.serverInfo.phone.replace(':', '_'),
+          'x-token': this.serverInfo.token,
+          'x-apikey': this.apiKey,
+      };
+      const response = await this.client.post(url, payload, { headers });
       return response.data;
     } catch (error) {
-      throw new Error(`Failed to send message: ${error.message}`);
+      // Extract user-friendly error message from the response body
+      const errorMessage = error.response?.data?.[0]?.error || error.message;
+      throw new Error(`Failed to send message: ${errorMessage}`);
     }
   }
 
