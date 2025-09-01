@@ -8,6 +8,32 @@ program
     .name('numbers')
     .description('Manage your WhatsApp numbers');
 
+program.command('list')
+    .description('List all your WhatsApp numbers')
+    .action(async () => {
+        try {
+            console.log('📱 Fetching your WhatsApp numbers...');
+            const response = await makeApiRequest('numbers_list');
+            
+            if (Array.isArray(response) && response.length > 0) {
+                const tableData = response.map((number, index) => ({
+                    '#': index + 1,
+                    'ID': number.id,
+                    'Name': number.name,
+                    'Phone': number.phonenumber,
+                    'Status': number.status,
+                    'Last Seen': number.lastSeen ? new Date(number.lastSeen).toLocaleString() : 'N/A'
+                }));
+                console.table(tableData);
+            } else {
+                console.log('📵 You don\'t have any WhatsApp numbers registered yet.');
+                console.log('💡 Use "zapwize numbers link" to connect a WhatsApp number.');
+            }
+        } catch (error) {
+            console.error('❌ Error fetching numbers:', error.message);
+        }
+    });
+
 program.command('link')
     .description('Link a new WhatsApp number')
     .action(async () => {
@@ -46,7 +72,7 @@ program.command('link')
             console.log('⬅️  Received response:', JSON.stringify(response, null, 2));
 
             if (response) {
-                const value = response;
+                const value = response.value;
                 if (answers.type === 'qrcode') {
                     console.log('Scan the QR code below with your WhatsApp app:');
                     qrcode.generate(value, { small: true });
@@ -59,7 +85,7 @@ program.command('link')
                 process.stdout.write('Waiting for connection...');
                 const poll = setInterval(async () => {
                     try {
-                        const stateResponse = await makeApiRequest('instance_state/' + answers.phonenumber);
+                        const stateResponse = await makeApiRequest('instance_state/' + response.phonenumber);
                         if (stateResponse.value === 'open' || stateResponse.value === 'connected') {
                             clearInterval(poll);
                             process.stdout.clearLine(0);

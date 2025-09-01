@@ -86,7 +86,6 @@ class Zapwize extends EventEmitter {
     this.socket.on('open', () => {
       this.connected = true;
       this.reconnectAttempts = 0;
-      this.emit('connected', wsUrl);
     });
     
     this.socket.on('message', (data) => {
