@@ -1,4 +1,4 @@
-const { Command } from 'commander';
+const { Command } = require('commander');
 const inquirer = require('inquirer');
 const qrcode = require('qrcode-terminal');
 const { makeApiRequest } = require('../api');

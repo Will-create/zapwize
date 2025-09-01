@@ -3,7 +3,7 @@ const { Command } = require('commander');
 const open = require('open');
 const program = new Command();
 
-const BASE_URL = 'https://zapwize.com/dashboard/ai';
+const BASE_URL = 'https://zapwize.com/dashboard/';
 
 program
     .name('ai')
@@ -12,7 +12,7 @@ program
 program.command('bots')
     .description('View and manage your AI bots')
     .action(() => {
-        const url = `${BASE_URL}/bots`;
+        const url = `${BASE_URL}/agents`;
         console.log(`Redirecting you to the AI bots dashboard: ${url}`);
         open(url);
     });
@@ -20,7 +20,7 @@ program.command('bots')
 program.command('integrations')
     .description('Configure AI integrations')
     .action(() => {
-        const url = `${BASE_URL}/integrations`;
+        const url = `${BASE_URL}/agents`;
         console.log(`Redirecting you to the AI integrations dashboard: ${url}`);
         open(url);
     });
@@ -28,7 +28,7 @@ program.command('integrations')
 program.command('settings')
     .description('Adjust AI settings')
     .action(() => {
-        const url = `${BASE_URL}/settings`;
+        const url = `${BASE_URL}/agents`;
         console.log(`Redirecting you to the AI settings dashboard: ${url}`);
         open(url);
     });

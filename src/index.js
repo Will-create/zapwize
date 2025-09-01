@@ -16,7 +16,7 @@ class Zapwize extends EventEmitter {
       baseURL: this.baseURL,
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
+        'Corntent-Type': 'application/json'
       },
       timeout: 30000
     });
@@ -65,23 +65,28 @@ class Zapwize extends EventEmitter {
   _createSecondaryClient() {
     this.client2 = axios.create({
       baseURL: this.serverInfo.baseurl,
-      timeout: 30000
+      timeout: 30000,
+      headers: {
+          'Content-Type': 'application/json',
+          'x-phone': this.serverInfo.phone.replace(':', '_'),
+          'x-token': this.serverInfo.token,
+          'x-apikey': this.apiKey,
+      },
     });
-    
-    this.msgUrl = `${this.serverInfo.baseurl}/${this.serverInfo.msgapi}?apikey=${this.apiKey}&token=${this.serverInfo.token}`;
-    this.mediaUrl = `${this.serverInfo.baseurl}/${this.serverInfo.mediaapi}?apikey=${this.apiKey}&token=${this.serverInfo.token}`;
+    this.msgUrl   = `${this.serverInfo.baseurl.replace(/\/+$/, '')}/${this.serverInfo.msgapi}`;
+    this.mediaUrl = `${this.serverInfo.baseurl.replace(/\/+$/, '')}/${this.serverInfo.mediaapi}`;
   }
   
   _connectWebSocket() {
     if (!this.serverInfo) return;
     
-    const wsUrl = `${this.serverInfo.url}?apikey=${this.apiKey}&token=${this.serverInfo.token}`;
+    const wsUrl = `${this.serverInfo.url}?apikey=${this.apiKey}&token=${this.serverInfo.token}&phone=${this.serverInfo.phone}`;
     this.socket = new WebSocket(wsUrl);
     
     this.socket.on('open', () => {
       this.connected = true;
       this.reconnectAttempts = 0;
-      this.emit('connected');
+      this.emit('connected', wsUrl);
     });
     
     this.socket.on('message', (data) => {
@@ -148,6 +153,7 @@ class Zapwize extends EventEmitter {
 
     try {
       const response = await this.client2.post(this.msgUrl, payload);
+      console.log(`Sent message to ${phone}:`, response.data);
       return response.data;
     } catch (error) {
       throw new Error(`Failed to send message: ${error.message}`);

@@ -13,7 +13,7 @@ program.command('list')
     .action(async () => {
         try {
             console.log('🔑 Fetching your API keys...');
-            const response = await makeApiRequest('apikeys_list');
+            const response = await makeApiRequest('apikeys');
             if (response) {
                 const apiKeys = response;
                 if (apiKeys.length === 0) {

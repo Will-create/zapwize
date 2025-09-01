@@ -56,11 +56,13 @@ const authenticateWithWebSocket = (state) => {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(`${WS_SERVER}/cli/${state}`);
     let timeoutId;
+    let authCompleted = false;
     
     ws.on('open', () => {
       console.log('Connected to authentication server...');
       // Set timeout for 5 minutes
       timeoutId = setTimeout(() => {
+        authCompleted = true;
         ws.close();
         reject(new Error('Authentication timeout. Please try again.'));
       }, 300000);
@@ -71,6 +73,7 @@ const authenticateWithWebSocket = (state) => {
         const message = JSON.parse(data.toString());
         switch (message.type) {
           case 'auth_success':
+            authCompleted = true;
             clearTimeout(timeoutId);
             ws.close();
             resolve({
@@ -86,12 +89,13 @@ const authenticateWithWebSocket = (state) => {
     });
     
     ws.on('error', (error) => {
+      authCompleted = true;
       clearTimeout(timeoutId);
       reject(new Error(`WebSocket error: ${error.message}`));
     });
     ws.on('close', () => {
       clearTimeout(timeoutId);
-      if (!timeoutId._destroyed) {
+      if (!authCompleted) {
         reject(new Error('Connection closed unexpectedly'));
       }
     });
