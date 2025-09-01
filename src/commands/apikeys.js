@@ -6,7 +6,7 @@ const program = new Command();
 
 program
     .name('apikeys')
-    .description('Manage your API keys')
+    .description('Manage your API keys');
 
 program.command('list')
     .description('List all your API keys')
@@ -26,7 +26,7 @@ program.command('list')
                     console.log(`${index + 1}. ${key.name} - ${key.token}`);
                 });
             } else {
-                console.error('❌ Failed to fetch API keys:', response.message);
+                console.error('❌ Failed to fetch API keys:', response.message || 'Unknown error');
             }
         } catch (error) {
             console.error('❌ Error fetching API keys:', error.message);
@@ -65,7 +65,12 @@ program.command('delete')
     .description('Delete an API key')
     .action(async () => {
         try {
-            const apiKeys = await makeApiRequest('apikeys_list');
+            const response = await makeApiRequest('apikeys_list');
+            if (!response.success) {
+                console.error('❌ Failed to fetch API keys:', response.message || 'Unknown error');
+                return;
+            }
+            const apiKeys = response.value;
             if (apiKeys.length === 0) {
                 console.log('You don\'t have any API keys to delete.');
                 return;
@@ -90,11 +95,11 @@ program.command('delete')
             ]);
 
             if (confirm) {
-                const response = await makeApiRequest('apikeys_remove/' + keyToDelete);
-                if (response.success) {
+                const deleteResponse = await makeApiRequest('apikeys_remove/' + keyToDelete);
+                if (deleteResponse.success) {
                     console.log('API key deleted successfully.');
                 } else {
-                    console.error('Error deleting API key:', response.message);
+                    console.error('Error deleting API key:', deleteResponse.message);
                 }
             } else {
                 console.log('Deletion cancelled.');

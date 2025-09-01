@@ -2,7 +2,8 @@ const axios = require('axios');
 const Conf = require('conf').default;
 const FormData = require('form-data');
 
-const config = new Conf({
+
+const conf = new Conf({
   projectName: 'zapwize-cli',
   encryptionKey: 'zapwize-secure-storage'
 });
@@ -17,12 +18,12 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config) => {
-    const token = config.get('session.token');
+  (axiosConfig) => {
+    const token = conf.get('session.token');
     if (token) {
-      config.headers['x-token'] = token;
+      axiosConfig.headers['x-cli'] = token;
     }
-    return config;
+    return axiosConfig;
   },
   (error) => {
     return Promise.reject(error);

@@ -28,7 +28,16 @@ const AUTH_URL =  'https://zapwize.com';
 program
   .name('zapwize')
   .description('Zapwize CLI - Manage your WhatsApp integration')
-  .version(version);
+  .version(version)
+  .hook('preAction', (thisCommand, actionCommand) => {
+    const a = actionCommand.name();
+    if (a !== 'login' && a !== 'logout' && a !== 'whoami') {
+      if (!isLoggedIn()) {
+        console.log('You need to log in first. Run: zapwize login');
+        process.exit(1);
+      }
+    }
+  });
 
 // Check if user is logged in
 const isLoggedIn = () => {
