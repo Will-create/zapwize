@@ -336,7 +336,7 @@ class Zapwize extends EventEmitter {
   async isWhatsAppNumber(phone) {
     try {
       const cleanPhone = this._formatChatId(phone);
-      const response = await axios.get(`https://api.zapwize.com/v1/iswhatsapp?phone=${encodeURIComponent(cleanPhone)}`, {
+      const response = await axios.get(`https://zapwize.com/api/iswhatsapp?phone=${encodeURIComponent(cleanPhone)}`, {
         timeout: 10000
       });
       return Boolean(response?.data?.success && response?.data?.value);

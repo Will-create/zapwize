@@ -34,14 +34,14 @@ npm install -g zapwize
 ```javascript
 const Zapwize = require('zapwize');
 
-const zap = new Zapwize({ 
-  apiKey: 'your_api_key_here' 
+const zap = new Zapwize({
+  apiKey: 'your_api_key_here'
 });
 
 // Listen for connection ready event
 zap.on('ready', (data) => {
   console.log('Connected to Zapwize!', data);
-  
+
   // Send a text message
   zap.sendMessage('22600000000', 'Hello from Zapwize!');
 });
@@ -49,7 +49,7 @@ zap.on('ready', (data) => {
 // Listen for incoming messages
 zap.on('message', (message) => {
   console.log('New message received:', message);
-  
+
   // Reply to the message
   if (message.from) {
     const phone = message.from.number;
@@ -72,63 +72,6 @@ zap.on('connected', () => {
   console.log('Reconnected to Zapwize');
 });
 ```
-# Zapwize
-
-A lightweight Node.js SDK and CLI for sending WhatsApp messages, media, and managing your WhatsApp integration via Zapwize API.
-
-[![NPM Version](https://img.shields.io/npm/v/zapwize.svg)](https://www.npmjs.com/package/zapwize)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-## Features
-
-- Send messages to any WhatsApp number
-- Send media (images, videos, documents)
-- Real-time message reception via WebSocket
-- Event-based architecture for handling messages and connection states
-- Automatic reconnection handling
-- Simple API key authentication
-- CLI for managing your Zapwize account and WhatsApp numbers
-
-## Installation
-
-```bash
-# Install as a dependency in your project
-npm install zapwize
-
-# Or install globally to use the CLI
-npm install -g zapwize
-```
-
-## SDK Quick Start
-
-```javascript
-const Zapwize = require('zapwize');
-const zap = new Zapwize({ apiKey: 'your_api_key_here' });
-
-// Listen for connection ready event
-zap.on('ready', (data) => {
-  console.log('Connected to Zapwize!', data);
-  
-  // Send a text message
-  zap.sendMessage('22600000000', 'Hello from Zapwize!');
-});
-
-// Listen for incoming messages
-zap.on('message', (message) => {
-  console.log('New message received:', message);
-  
-  // Reply to the message
-  if (message.from) {
-    const phone = message.from.number;
-    zap.sendMessage(phone, 'Thanks for your message!');
-  }
-});
-
-// Handle errors
-zap.on('error', (error) => {
-  console.error('Error:', error);
-});
-```
 
 ## Getting Your API Key
 
@@ -146,7 +89,7 @@ To use the Zapwize SDK, you'll need to obtain an API key. Here are two ways to g
 
 ### Method 2: Using the Zapwize CLI
 
-If you've installed the Zapwize CLI globally, you can use it to manage your API keys:
+If you've installed the Zapwize CLI globally (via ``), you can use it to manage your API keys:
 
 1. **Login to Your Account**:
    ```bash
@@ -155,21 +98,25 @@ If you've installed the Zapwize CLI globally, you can use it to manage your API 
 
 2. **Link Your WhatsApp Number** (if you haven't already):
    ```bash
-   zapwize link
+   zapwize numbers link
    ```
-   This will display a QR code in your terminal that you can scan with your WhatsApp app.
+   - This will prompt you to select linking method: code and qrcode.
+   - Then a prompt to enter a name for your integration
+   - Then a prompt to enter webhook. That one is optional. But you can still add it in your dashboard in
+
+   If Qrcode: it will display QR code in your terminal that you can scan with your WhatsApp app.
+   If Code: then it will display Confirmation Code and by the time you see it there will be a notification from whatsapp in you mobile phone.  
 
 3. **Create an API Key**:
-   ```bash
-   zapwize create-key YOUR_PHONE_NUMBER
-   ```
-   Replace `YOUR_PHONE_NUMBER` with your actual WhatsApp number.
+```bash
+zapwize apikeys create
+```
+Interact with the cli to fill to connect to generate an api key for your app.
 
-4. **Save Your API Key**: The CLI will display your new API key. Save it securely as it will only be shown once.
+4. **Save Your API Key**: The CLI will display your new API key. Save it securely as it may only be shown once.
 
 Remember to keep your API key secure and never share it publicly. Each API key is linked to your specific WhatsApp number and account.
-
-        
+   
 ## SDK API Reference
 
 ### Check WhatsApp Number
@@ -251,6 +198,335 @@ zap.disconnect();
 | Documents | .pdf, .doc, .docx, .xls, .xlsx, .txt |
 | Stickers  | .webp                                |
 
+
+
+## on(\'message\') data structures
+
+When you listen for the `message` event, you will receive a data object with a structure that varies depending on the type of message. Here are the possible message types and their corresponding data structures:
+
+### Presence
+
+`presence` messages indicate a user\'s status (e.g., composing, available, recording).
+
+```json
+{
+  "id": "22656920671@s.whatsapp.net-1756868499107",
+  "content": {
+    "type": "presence",
+    "body": { "presence": "composing", "timestamp": 1756868499107 }
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "presence",
+  "isgroup": false,
+  "istag": false,
+  "from": "22656920671",
+  "group": null,
+  "isviewonce": false
+}
+```
+
+### Text
+
+`text` messages contain a simple text string.
+
+```json
+{
+  "id": "6232CC122DE27100F01B8E2C11CB4CA2",
+  "content": "Text message",
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "text",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Document
+
+`document` messages contain a file attachment.
+
+```json
+{
+  "id": "75BAF95FCD98B395EB8C4B421792F478",
+  "content": {
+    "name": "104a16atbd4n374o7gpxf6311svnq55ujqk.pdf",
+    "size": 6328437,
+    "ext": "pdf",
+    "custom": { "type": "document", "fromstatus": false },
+    "type": "application/pdf",
+    "date": "2025-09-03T03:06:18.077Z",
+    "expire": "2025-09-06T03:06:18.077Z",
+    "id": "1qzyt003ga51d",
+    "url": "https://server0.zapwize.com/download/22656920671_1qzyt003ga51d-1xgx27p.pdf"
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "document",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Sticker
+
+`sticker` messages contain a sticker.
+
+```json
+{
+  "id": "16266C5C390179394B24D07D825505CB",
+  "content": {
+    "name": "3oo121dq51u0n15i41bpass1x3xj8ptu8bm.webp",
+    "size": 12946,
+    "ext": "webp",
+    "custom": { "type": "sticker", "fromstatus": false },
+    "type": "image/webp",
+    "date": "2025-09-03T03:06:31.036Z",
+    "expire": "2025-09-06T03:06:31.036Z",
+    "id": "1qzyu001ga51d",
+    "url": "https://server0.zapwize.com/download/22656920671_1qzyu001ga51d-1cy2yg.webp"
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "sticker",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Video
+
+`video` messages contain a video file.
+
+```json
+{
+  "id": "9F35AE5AE17F9BFC7D7A8E97A08D2387",
+  "content": {
+    "name": "98719r817pv18h0122016td1ake9qjx8yfv.mp4",
+    "size": 35051,
+    "ext": "mp4",
+    "custom": { "type": "video", "fromstatus": false },
+    "type": "video/mp4",
+    "date": "2025-09-03T03:06:48.019Z",
+    "expire": "2025-09-06T03:06:48.019Z",
+    "id": "1qzyu002ga50d",
+    "url": "https://server0.zapwize.com/download/22656920671_1qzyu002ga50d-1pt8xdk.mp4"
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "video",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Image
+
+`image` messages contain an image file.
+
+```json
+{
+  "id": "3C7B923801F71B2920C163C1CE353705",
+  "content": {
+    "name": "gg83fori1ib43w5v9n10dv1dxq14su19ys5.jpg",
+    "size": 18245,
+    "ext": "jpg",
+    "custom": { "type": "image", "fromstatus": false, "caption": null },
+    "type": "image/jpeg",
+    "width": 525,
+    "height": 1080,
+    "date": "2025-09-03T03:07:08.140Z",
+    "expire": "2025-09-06T03:07:08.140Z",
+    "id": "1qzyu003ga51d",
+    "url": "https://server0.zapwize.com/download/22656920671_1qzyu003ga51d-1ji53jq.jpg"
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "image",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Voice
+
+`voice` messages contain a voice recording.
+
+```json
+{
+  "id": "B29EA211EC2F62BDD83B2B3083DC6DBD",
+  "content": {
+    "name": "pm9wlgc24175vdtoun90gs7e96u199a16sj.ogg",
+    "size": 5974,
+    "ext": "ogg",
+    "custom": { "type": "voice" },
+    "type": "application/ogg",
+    "date": "2025-09-03T03:07:40.664Z",
+    "expire": "2025-09-06T03:07:40.664Z",
+    "id": "1qzyv001ga51d",
+    "url": "https://server0.zapwize.com/download/22656920671_1qzyv001ga51d-1mfa69l.ogg"
+  },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "voice",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "fromMe": false,
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Poll
+
+`poll` messages contain a poll with options.
+
+```json
+{
+  "id": "ABB6DC080122A5160CE5BCBD695861C7",
+  "content": "{\"name\":\"Blue or red pill?\",\"options\":[{\"optionName\":\"Blue\"},{\"optionName\":\"Red\"}],\"selectableOptionsCount\":0}",
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "poll",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Location
+
+`location` messages contain geographic coordinates.
+
+```json
+{
+  "id": "13D6D1BDDA5C6A0C8CF72D31CEC0956F",
+  "content": "\"12.4239463, -1.525469\"",
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "location",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Contact
+
+`contact` messages contain contact information in vCard format.
+
+```json
+{
+  "id": "7ADB6963E30719F1D8E0FEB26AD015AA",
+  "content": "BEGIN:VCARD\nVERSION:3.0\nN:;@Ouattara;;;\nFN:@Ouattara\nitem1.TEL;waid=22676605143:+226 76 60 51 43\nitem1.X-ABLabel:Other\nEND:VCARD",
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "contact",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "fromMe": false,
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
+
+### Reaction
+
+`reaction` messages contain a reaction to a previous message.
+
+```json
+{
+  "id": "3EB099A22195E701665C5F",
+  "content": { "text": "❤️", "msgid": "3EB099A22195E701665C5F", "ts": "1756868965989" },
+  "number": "22656920671",
+  "chatid": "22656920671@s.whatsapp.net",
+  "type": "reaction",
+  "isgroup": false,
+  "istag": false,
+  "from": {
+    "id": "22656920671@s.whatsapp.net",
+    "number": "22656920671",
+    "pushname": "Louis Bertson",
+    "fromMe": false,
+    "countrycode": "226"
+  },
+  "group": { "id": "", "name": "" },
+  "isviewonce": false
+}
+```
 ## Authentication
 
 The SDK uses a two-step authentication process:
@@ -434,7 +710,7 @@ zapwize billing:history
 
 ## Getting Your API Key
 
-To use the Zapwize SDK, you'll need an API key.
+To use the Zapwize SDK, you\'ll need an API key.
 
 1. **Login to Your Account**:
    ```bash

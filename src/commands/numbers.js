@@ -69,7 +69,6 @@ program.command('link')
                 webhook: answers.webhook,
                 type: answers.type,
             });
-            console.log('⬅️  Received response:', JSON.stringify(response, null, 2));
 
             if (response) {
                 const value = response.value;
